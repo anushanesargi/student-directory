@@ -1,3 +1,34 @@
+def menu
+    students = []
+    loop do
+        # 1. print the menu
+        puts "Please select one of the following:"
+        puts "1. Input the students"
+        puts "2. Print the students"
+        puts "9. Exit program"
+        
+        # 2. read the input and save it into a variable
+        user_input = gets.chomp
+
+        # 3. Do what the user asked
+        case user_input
+        when "1"
+            students = input_students
+            
+        when "2"
+            header
+            names(students)
+            footer(students)
+        when "9"
+            break
+        else
+            puts "Please enter from the selection"
+        end
+        # 4. repeat from step 1
+    end
+end
+
+
 def input_students
     puts "Please enter the names of the students and their cohort"
     puts "To finish, just type quit"
@@ -52,8 +83,9 @@ end
 
 #print names
 def names(students) # takes an array
+    puts students
     i = 0
-    cohorts = students.map{|student|student[:cohort]}.uniq
+    cohorts = students.map { |student| student[:cohort] }.uniq
     puts cohorts
     while i < cohorts.length
         puts "In the #{cohorts[i]} cohort we have:"
@@ -69,7 +101,4 @@ def footer(students) # takes an array
     puts "Overall, we have #{students.count} great students"
 end
 
-student = input_students
-header
-names(student)
-footer(student)
+menu
