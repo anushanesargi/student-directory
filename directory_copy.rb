@@ -4,7 +4,7 @@ def menu
     loop do
         puts "Please select one of the following:"
         print_menu
-        process(gets.chomp)
+        process(STDIN.gets.chomp)
     end
 end
 
@@ -43,7 +43,7 @@ def input_students
     puts "Please enter the names of the students and their cohort"
     puts "To finish, just type quit"
 
-    name_and_cohort = gets.chomp.split(",")
+    name_and_cohort = STDIN.gets.chomp.split(",")
     
     while name_and_cohort[0] != "Quit"
         name_and_cohort = check_input(name_and_cohort)
@@ -57,7 +57,7 @@ def input_students
         
         @students << {name: name, cohort: typo(cohort), hobby: :skiing, food: :upma}
         student_count(@students)
-        name_and_cohort = gets.chomp.split(",")
+        name_and_cohort = STDIN.gets.chomp.split(",")
     end
 
     @students
@@ -86,7 +86,7 @@ end
 def check_input(name_and_cohort)
     while name_and_cohort.empty?
         puts "Please type name and cohort separated by a comma"
-        name_and_cohort = gets.chomp.split(",")
+        name_and_cohort = STDIN.gets.chomp.split(",")
     end
     name_and_cohort
 end
@@ -126,8 +126,8 @@ def save_students
     file.close
 end
 
-def load_students
-    file = File.open("students.csv", "r")
+def load_students(filename = "students.csv")
+    file = File.open(filename, "r")
     file.readlines.each do |line|
         name, cohort = line.chomp.split(",")
         @students << {name: name, cohort: cohort.to_sym}
@@ -135,4 +135,17 @@ def load_students
     file.close
 end
 
+def try_load_students
+    filename = ARGV.first
+    return if filename.nil?
+    if File.exist?(filename)
+        load_students(filename)
+        puts "Loaded #{@students.count} students from #{filename}"
+    else
+        puts "Sorry, #{filename} deosn't exist"
+        exit
+    end
+end
+
+try_load_students
 menu
