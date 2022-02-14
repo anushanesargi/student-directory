@@ -1,14 +1,17 @@
+require 'csv'
+
 @students = []
 
 def menu
     loop do
-        puts "Please select one of the following:"
         print_menu
         process(STDIN.gets.chomp)
     end
 end
 
 def print_menu
+    puts "MENU".center(80, '.')
+    puts "Please select one of the following:"
     puts "1. Input the students"
     puts "2. Print the students"
     puts "3. Save the list to student.csv"
@@ -29,11 +32,21 @@ def process(selection)
     when "2"
         show_students
     when "9"
+        puts "Application closed!"
         exit
     when "3"
-        save_students
+        puts "Please type the filename you need the students to be saved in."
+        filename = STDIN.gets.chomp
+        filename = "students.csv" if filename.empty?
+        save_students(filename)
     when "4"
-        load_students
+        puts "Please type the filename you need the students to be loaded from."
+        filename = STDIN.gets.chomp
+        if File.exist?(filename)
+            load_students(filename)
+        else
+            load_students("students.csv")
+        end
     else
         puts "Please enter from the selection"
     end
@@ -55,7 +68,7 @@ def input_students
             cohort = name_and_cohort[1].strip.capitalize.to_sym
         end
         
-        @students << {name: name, cohort: typo(cohort), hobby: :skiing, food: :upma}
+        pushing_students(name, typo(cohort))
         student_count(@students)
         name_and_cohort = STDIN.gets.chomp.split(",")
     end
@@ -116,35 +129,40 @@ def footer(students) # takes an array
     puts "Overall, we have #{students.count} great students"
 end
     
-def save_students
-    file = File.open("students.csv", "w")
+def save_students(filename = "students.csv")
+    File.open(filename, "w") { |file| save_students_to_file(file) }
+    puts "Saved #{@students.count} students to #{filename}"
+end
+
+def save_students_to_file(file)
     @students.each do |student|
         student_data = [student[:name], student[:cohort]]
         csv_line = student_data.join(",")
         file.puts csv_line
     end
-    file.close
 end
 
 def load_students(filename = "students.csv")
-    file = File.open(filename, "r")
-    file.readlines.each do |line|
-        name, cohort = line.chomp.split(",")
-        @students << {name: name, cohort: cohort.to_sym}
+    CSV.foreach(filename) do |row| 
+        name, cohort = row
+        pushing_students(name, cohort) 
     end
-    file.close
+    puts "Loaded #{@students.count} students from #{filename}"
 end
 
 def try_load_students
     filename = ARGV.first
-    return if filename.nil?
+    filename = "students.csv" if filename.nil?
     if File.exist?(filename)
         load_students(filename)
-        puts "Loaded #{@students.count} students from #{filename}"
     else
         puts "Sorry, #{filename} deosn't exist"
         exit
     end
+end
+
+def pushing_students(name, cohort)
+    @students << {name: name, cohort: cohort.to_sym}
 end
 
 try_load_students
